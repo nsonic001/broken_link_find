@@ -16,38 +16,6 @@ class EmailSender(object):
         boto3.setup_default_session(profile_name='devops')
         self.client = boto3.client('ses', region_name=region_name)
 
-    @classmethod
-    def _bold(cls, text):
-        return "<b>" + text + "</b>"
-
-    # noinspection PyPep8Naming
-    @staticmethod
-    def sendEmail(subject, body, toAddresses, fromAddress='', ccAddresses=None, bccAddresses=None,
-                  **kwargs):
-        try:
-            destination = {
-                'ToAddresses': toAddresses,
-                'CcAddresses': ccAddresses or [],
-                'BccAddresses': bccAddresses or []
-            }
-            EmailSender().client.send_email(
-                Source=fromAddress,
-                Destination=destination,
-                Message={
-                    'Subject': {
-                        'Data': subject
-                    },
-                    'Body': {
-                        'Html': {
-                            'Data': body
-                        }
-                    }
-                },
-                **kwargs
-            )
-        except botocore.exceptions.ClientError:
-            print("send_email_alert", subject, toAddresses)
-
     @staticmethod
     def sendRawEmail(subject, to_addresses, from_address='',
                      body_plain='', body_html='',
