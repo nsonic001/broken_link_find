@@ -49,7 +49,7 @@ def run_link_checker(host, from_address, to_address):
     exec_command = "linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
-    exec_command += " -F csv/home/ubuntu/brokenlink-out.csv"
+    exec_command += " -F csv//home/ubuntu/brokenlink-out.csv"
     run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # while True:
