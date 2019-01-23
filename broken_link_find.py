@@ -79,7 +79,7 @@ def run_link_checker():
 
     time.sleep(60)
 
-    host = sys.argv()[1]  # "https://help.moengage.com"
+    host =  "https://help.moengage.com" #sys.argv()[1]
     ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
                    "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
     exec_command = "linkchecker " + host
