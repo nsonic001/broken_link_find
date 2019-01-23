@@ -40,6 +40,15 @@ class EmailSender(object):
         except botocore.exceptions.ClientError:
             print("send_email_alert", subject, to_addresses)
 
+def demote(user_uid, user_gid):
+    """Pass the function 'set_ids' to preexec_fn, rather than just calling
+    setuid and setgid. This will change the ids for that subprocess only"""
+
+    def set_ids():
+        os.setgid(user_gid)
+        os.setuid(user_uid)
+
+    return set_ids
 
 def run_link_checker(host, from_address, to_address):
     # host =  host"https://help.moengage.com" #sys.argv()[1]
@@ -52,7 +61,7 @@ def run_link_checker(host, from_address, to_address):
     output_path = "/home/ubuntu/brokenlink-out.csv"
     exec_command += " -F csv/"+output_path
     
-    run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, preexec_fn=demote(1000, 1000))
 
     # while True:
     #     nextline = run_p.stdout.readline()
