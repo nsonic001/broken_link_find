@@ -120,3 +120,8 @@ def run_link_checker():
             writer.writerows(reader)
             raise RuntimeError('timeout')
             # time.sleep(30)
+            # 
+            # 
+if __name__ == '__main__':
+    run_link_checker()
+
