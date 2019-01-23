@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 import boto3
 import botocore
 import os
-
+import stat
 class EmailSender(object):
     def __init__(self, region_name='us-east-1'):
         boto3.setup_default_session(profile_name='devops')
@@ -49,7 +49,14 @@ def run_link_checker(host, from_address, to_address):
     exec_command = "linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
-    exec_command += " -F csv//home/ubuntu/brokenlink-out.csv"
+    output_path = "/home/ubuntu/brokenlink-out.csv"
+    exec_command += " -F csv/"+output_path
+    
+    with open(output_path, 'w') as fh:
+        fh.write('blabla\n')
+    st = os.stat(output_path)
+    os.chmod(path, st.st_mode | stat.S_IWOTH)
+
     run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # while True:
@@ -75,7 +82,7 @@ def run_link_checker(host, from_address, to_address):
             p.kill()
             # subprocess.Popen(["sed -i -e 1,4d linkchecker-out.csv"], shell=True, stdout=subprocess.PIPE,
             #                  stderr=subprocess.STDOUT)
-            reader = csv.reader(open("/home/ubuntu/brokenlink-out.csv", "rU"), delimiter=';')
+            reader = csv.reader(open(output_path, "rU"), delimiter=';')
             writer = csv.writer(open("/home/ubuntu/brokenlink-out-final.csv", 'w'), delimiter=',')
             next(reader)
             next(reader)
