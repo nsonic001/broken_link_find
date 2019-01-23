@@ -1,4 +1,5 @@
 import csv
+import gzip
 import subprocess
 import time, psutil
 
@@ -10,7 +11,8 @@ from email.mime.text import MIMEText
 import boto3
 import botocore
 import os
-import stat
+
+
 class EmailSender(object):
     def __init__(self, region_name='us-east-1'):
         boto3.setup_default_session(profile_name='devops')
@@ -40,6 +42,7 @@ class EmailSender(object):
         except botocore.exceptions.ClientError:
             print("send_email_alert", subject, to_addresses)
 
+
 def demote(user_uid, user_gid):
     """Pass the function 'set_ids' to preexec_fn, rather than just calling
     setuid and setgid. This will change the ids for that subprocess only"""
@@ -50,18 +53,20 @@ def demote(user_uid, user_gid):
 
     return set_ids
 
+
 def run_link_checker(host, from_address, to_address):
     # host =  host"https://help.moengage.com" #sys.argv()[1]
     # ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
-                   # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
+    # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
     ignore_urls = []
     exec_command = "sudo linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
     output_path = "/home/ubuntu/brokenlink-out.csv"
-    exec_command += " -F csv/"+output_path
-    
-    run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, preexec_fn=demote(1000, 1000))
+    exec_command += " -F csv/" + output_path
+
+    run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             preexec_fn=demote(1000, 1000))
 
     # while True:
     #     nextline = run_p.stdout.readline()
@@ -86,22 +91,34 @@ def run_link_checker(host, from_address, to_address):
             p.kill()
             # subprocess.Popen(["sed -i -e 1,4d linkchecker-out.csv"], shell=True, stdout=subprocess.PIPE,
             #                  stderr=subprocess.STDOUT)
-            reader = csv.reader(open("/home/ubuntu/brokenlink-out.csv", "rU"), delimiter=';')
-            writer = csv.writer(open("/home/ubuntu/brokenlink-out-final.csv", 'w'), delimiter=',')
-            next(reader)
-            next(reader)
-            next(reader)
-            next(reader)
+            rawdata_input = open("/home/ubuntu/brokenlink-out.csv", "rU")
+            format_out = open("/home/ubuntu/brokenlink-out-final.csv", 'w')
+            reader = csv.reader(rawdata_input, delimiter=';')
+            writer = csv.writer(format_out, delimiter=',')
+            for i in range(4):
+                next(reader)
             writer.writerows(reader)
-            pwd = os.getcwd()
-            EmailSender().sendRawEmail('Alert | Broken URL', [to_address], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path='/home/ubuntu/brokenlink-out-final.csv')
+            rawdata_input.close()
+            format_out.close()
+
+            in_file = file("/home/ubuntu/brokenlink-out-final.csv", 'rb')
+            s = in_file.read()
+            in_file.close()
+            out_file = gzip.GzipFile("/home/ubuntu/brokenlink-csvzip.gz", 'wb')
+            out_file.write(s)
+            out_file.close()
+
+            EmailSender().sendRawEmail('Alert | Broken URL', [to_address, "nilesh@moengage.com"],
+                                       from_address=from_address, attachment_file_name='broken-link.csv.gz',
+                                       attachment_file_path="/home/ubuntu/brokenlink-csvzip.gz")
             raise RuntimeError('timeout')
             # time.sleep(30)
             # 
             # 
+
+
 if __name__ == '__main__':
     host = sys.argv[1]
     from_address = sys.argv[2]
     to_address = sys.argv[3]
     run_link_checker(host, from_address, to_address)
-
