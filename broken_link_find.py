@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 
 import boto3
 import botocore
-
+import os
 
 class EmailSender(object):
     def __init__(self, region_name='us-east-1'):
@@ -22,7 +22,7 @@ class EmailSender(object):
 
     # noinspection PyPep8Naming
     @staticmethod
-    def sendEmail(subject, body, toAddresses, fromAddress='alerts@moengage.co', ccAddresses=None, bccAddresses=None,
+    def sendEmail(subject, body, toAddresses, fromAddress='', ccAddresses=None, bccAddresses=None,
                   **kwargs):
         try:
             destination = {
@@ -49,7 +49,7 @@ class EmailSender(object):
             print("send_email_alert", subject, toAddresses)
 
     @staticmethod
-    def sendRawEmail(subject, to_addresses, from_address='alerts@moengage.co',
+    def sendRawEmail(subject, to_addresses, from_address='',
                      body_plain='', body_html='',
                      attachment_file_name=None, attachment_file_path=None):
         msg = MIMEMultipart()
@@ -73,15 +73,16 @@ class EmailSender(object):
             print("send_email_alert", subject, to_addresses)
 
 
-def run_link_checker():
+def run_link_checker(host, from_address, to_address):
     _ = subprocess.Popen(['sudo pip install LinkChecker'], shell=True, stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
 
     time.sleep(60)
 
-    host =  "https://help.moengage.com" #sys.argv()[1]
-    ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
-                   "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
+    # host =  host"https://help.moengage.com" #sys.argv()[1]
+    # ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
+                   # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
+    ignore_urls = []
     exec_command = "linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
@@ -95,7 +96,7 @@ def run_link_checker():
     #     sys.stdout.write(nextline)
     #     sys.stdout.flush()
 
-    TIMEOUT = 15 * 60  # 15 min
+    TIMEOUT = 2 * 60 * 60  # 15 min
 
     p = psutil.Process(run_p.pid)
     print "process started with pid ", run_p.pid
@@ -118,10 +119,15 @@ def run_link_checker():
             next(reader)
             next(reader)
             writer.writerows(reader)
+            pwd = os.getcwd()
+            EmailSender().sendRawEmail('Alert | Broken URL', [to_address], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path=pwd+'/linkchecker-out-final.csv')
             raise RuntimeError('timeout')
             # time.sleep(30)
             # 
             # 
 if __name__ == '__main__':
-    run_link_checker()
+    host = sys.argv[1]
+    from_address = sys.argv[2]
+    to_address = sys.argv[3]
+    run_link_checker(host, from_address, to_address)
 
