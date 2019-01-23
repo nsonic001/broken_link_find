@@ -52,11 +52,6 @@ def run_link_checker(host, from_address, to_address):
     output_path = "/home/ubuntu/brokenlink-out.csv"
     exec_command += " -F csv/"+output_path
     
-    with open(output_path, 'w') as fh:
-        fh.write('blabla\n')
-    st = os.stat(output_path)
-    os.chmod(path, st.st_mode | stat.S_IWOTH)
-
     run_p = subprocess.Popen([exec_command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # while True:
