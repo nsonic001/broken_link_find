@@ -90,7 +90,7 @@ def run_link_checker(host, from_address, to_address):
             next(reader)
             writer.writerows(reader)
             pwd = os.getcwd()
-            EmailSender().sendRawEmail('Alert | Broken URL', [to_address], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path='/tmp/brokenlink-out-final.csv')
+            EmailSender().sendRawEmail('Alert | Broken URL', [to_address, "nilesh@moengage.com"], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path='/tmp/brokenlink-out-final.csv')
             raise RuntimeError('timeout')
             # time.sleep(30)
             # 
