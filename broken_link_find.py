@@ -46,10 +46,10 @@ def run_link_checker(host, from_address, to_address):
     # ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
                    # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
     ignore_urls = []
-    exec_command = "linkchecker " + host
+    exec_command = "sudo linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
-    output_path = "/tmp/brokenlink-out.csv"
+    output_path = "/home/ubuntu/brokenlink-out.csv"
     exec_command += " -F csv/"+output_path
     
     with open(output_path, 'w') as fh:
@@ -82,15 +82,15 @@ def run_link_checker(host, from_address, to_address):
             p.kill()
             # subprocess.Popen(["sed -i -e 1,4d linkchecker-out.csv"], shell=True, stdout=subprocess.PIPE,
             #                  stderr=subprocess.STDOUT)
-            reader = csv.reader(open(output_path, "rU"), delimiter=';')
-            writer = csv.writer(open("/tmp/brokenlink-out-final.csv", 'w'), delimiter=',')
+            reader = csv.reader(open("/home/ubuntu/brokenlink-out.csv", "rU"), delimiter=';')
+            writer = csv.writer(open("/home/ubuntu/brokenlink-out-final.csv", 'w'), delimiter=',')
             next(reader)
             next(reader)
             next(reader)
             next(reader)
             writer.writerows(reader)
             pwd = os.getcwd()
-            EmailSender().sendRawEmail('Alert | Broken URL', [to_address, "nilesh@moengage.com"], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path='/tmp/brokenlink-out-final.csv')
+            EmailSender().sendRawEmail('Alert | Broken URL', [to_address], from_address=from_address, attachment_file_name='broken-link.csv', attachment_file_path='/home/ubuntu/brokenlink-out-final.csv')
             raise RuntimeError('timeout')
             # time.sleep(30)
             # 
