@@ -74,11 +74,6 @@ class EmailSender(object):
 
 
 def run_link_checker(host, from_address, to_address):
-    _ = subprocess.Popen(['sudo pip install LinkChecker'], shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-
-    time.sleep(60)
-
     # host =  host"https://help.moengage.com" #sys.argv()[1]
     # ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
                    # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
