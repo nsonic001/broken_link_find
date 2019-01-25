@@ -75,7 +75,7 @@ def run_link_checker(host, from_address, to_address):
     #     sys.stdout.write(nextline)
     #     sys.stdout.flush()
 
-    TIMEOUT = 2 * 60 * 60  # 15 min
+    TIMEOUT = 5400  # 1 hour 30 minutes 1.5*60*60
 
     p = psutil.Process(run_p.pid)
     print "process started with pid ", run_p.pid
