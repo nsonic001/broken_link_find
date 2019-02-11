@@ -56,9 +56,9 @@ def demote(user_uid, user_gid):
 
 def run_link_checker(host, from_address, to_address):
     # host =  host"https://help.moengage.com" #sys.argv()[1]
-    # ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
-    # "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
-    ignore_urls = []
+    ignore_urls = ["https://help.moengage.com/hc/en-us/articles/.\*/subscription.\*",
+    "https://help.moengage.com/hc/en-us/sections/.\*/subscription.\*"]
+    # ignore_urls = []
     exec_command = "sudo linkchecker " + host
     if ignore_urls:
         exec_command += " --ignore-url " + " --ignore-url ".join(ignore_urls)
@@ -75,7 +75,7 @@ def run_link_checker(host, from_address, to_address):
     #     sys.stdout.write(nextline)
     #     sys.stdout.flush()
 
-    TIMEOUT = 5400  # 1 hour 30 minutes 1.5*60*60
+    TIMEOUT = 7200  # 1 hour 30 minutes 2*60*60
 
     p = psutil.Process(run_p.pid)
     print "process started with pid ", run_p.pid
